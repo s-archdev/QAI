@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Meta-Strategic System</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid #00ffff;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 0 0 20px #00ffff;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .visualization-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .canvas-container {
+            flex: 2;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #ff00ff;
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+        
+        .control-group h3 {
+            margin: 0 0 15px 0;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+        
+        .slider-container {
+            margin: 10px 0;
+        }
+        
+        .slider-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #cccccc;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        
+        .value-display {
+            font-size: 0.8em;
+            color: #ffff00;
+            margin-top: 5px;
+        }
+        
+        .equations {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .equation {
+            margin: 10px 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1em;
+            color: #ffffff;
+        }
+        
+        .probability-display {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 0, 255, 0.3);
+        }
+        
+        .prob-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+        }
+        
+        .utility-display {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 0, 0.3);
+        }
+        
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .animate-btn {
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .animate-btn:hover {
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Quantum Meta-Strategic System</h1>
+            <p>Dimensional Expansion with Entropy-Preserving Zero-Sum Dynamics</p>
+        </div>
+        
+        <div class="visualization-container">
+            <div class="canvas-container">
+                <canvas id="quantum-canvas"></canvas>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00ffff;"></div>
+                        <span>3D Hilbert Space ℋ</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff00ff;"></div>
+                        <span>5D Hilbert Space ℋ'</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffff00;"></div>
+                        <span>Selected Outcome ω*</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff0000;"></div>
+                        <span>Transformation Π</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls-panel">
+                <div class="equations">
+                    <h3>System Equations</h3>
+                    <div class="equation">Ψ = α₀|ω₀⟩ + α₁|ω₁⟩ + α₂|ω₂⟩</div>
+                    <div class="equation">Ω' = ΠΨ</div>
+                    <div class="equation">⟨Ω'|Ω'⟩ = ⟨Ψ|Ψ⟩ = 1</div>
+                    <div class="equation">P(ωᵢ') = |⟨ωᵢ'|Ω'⟩|²</div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Initial State Ψ Amplitudes</h3>
+                    <div class="slider-container">
+                        <label>α₀ (Real)</label>
+                        <input type="range" class="slider" id="alpha0-real" min="-1" max="1" step="0.05" value="0.6">
+                        <div class="value-display" id="alpha0-real-val">0.6</div>
+                    </div>
+                    <div class="slider-container">
+                        <label>α₁ (Real)</label>
+                        <input type="range" class="slider" id="alpha1-real" min="-1" max="1" step="0.05" value="0.5">
+                        <div class="value-display" id="alpha1-real-val">0.5</div>
+                    </div>
+                    <div class="slider-container">
+                        <label>α₂ (Real)</label>
+                        <input type="range" class="slider" id="alpha2-real" min="-1" max="1" step="0.05" value="0.6">
+                        <div class="value-display" id="alpha2-real-val">0.6</div>
+                    </div>
+                    <div class="value-display">Norm: <span id="norm-display">1.00</span></div>
+                </div>
+                
+                <div class="control-group">
+                    <h3>Transformation Matrix Π</h3>
+                    <button class="animate-btn" onclick="randomizeMatrix()">Randomize Matrix</button>
+                    <div class="value-display">5×3 Complex Matrix (Norm-Preserving)</div>
+                </div>
+                
+                <div class="probability-display">
+                    <h3>Collapse Probabilities</h3>
+                    <div class="prob-item">
+                        <span>P(ω₀'):</span>
+                        <span id="prob0">0.00</span>
+                    </div>
+                    <div class="prob-item">
+                        <span>P(ω₁'):</span>
+                        <span id="prob1">0.00</span>
+                    </div>
+                    <div class="prob-item">
+                        <span>P(ω₂'):</span>
+                        <span id="prob2">0.00</span>
+                    </div>
+                    <div class="prob-item">
+                        <span>P(ω₃'):</span>
+                        <span id="prob3">0.00</span>
+                    </div>
+                    <div class="prob-item">
+                        <span>P(ω₄'):</span>
+                        <span id="prob4">0.00</span>
+                    </div>
+                </div>
+                
+                <div class="utility-display">
+                    <h3>Zero-Sum Utilities</h3>
+                    <div class="prob-item">
+                        <span>U(ω₀'):</span>
+                        <span id="util0">0.00</span>
+                    </div>
+                    <div class="prob-item">
+                        <span>U(ω₁'):</span>
+                        <span id="util1">0.00</span>
+                    </div>
+                    <div class="prob-item">
+                        <span>U(ω₂'):</span>
+                        <span id="util2">0.00</span>
+                    </div>
+                    <div class="prob-item">
+                        <span>U(ω₃'):</span>
+                        <span id="util3">0.00</span>
+                    </div>
+                    <div class="prob-item">
+                        <span>U(ω₄'):</span>
+                        <span id="util4">0.00</span>
+                    </div>
+                    <div class="prob-item" style="border-top: 2px solid #ffff00; margin-top: 10px; padding-top: 10px;">
+                        <span>Expected Utility:</span>
+                        <span id="expected-util">0.00</span>
+                    </div>
+                </div>
+                
+                <button class="animate-btn" onclick="animateCollapse()">Animate Collapse</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let scene, camera, renderer, canvas;
+        let psi3DPoints = [];
+        let omega5DPoints = [];
+        let transformationArrows = [];
+        let selectedOutcome = null;
+        let animationId = null;
+        
+        // Transformation matrix Π (5×3 complex)
+        let Pi = [
+            [0.6, 0.4, 0.5],
+            [0.3, 0.7, 0.2],
+            [0.4, 0.2, 0.8],
+            [0.5, 0.6, 0.1],
+            [0.2, 0.3, 0.6]
+        ];
+        
+        // Utilities (zero-sum)
+        let utilities = [1.5, -0.8, 0.3, -1.2, 0.2];
+        
+        function init() {
+            canvas = document.getElementById('quantum-canvas');
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+            renderer.setSize(canvas.width, canvas.height);
+            renderer.setClearColor(0x000000, 0);
+            
+            camera.position.set(0, 0, 10);
+            
+            createQuantumStates();
+            setupControls();
+            updateSystem();
+            animate();
+        }
+        
+        function createQuantumStates() {
+            // Create 3D Hilbert space representation
+            const geometry3D = new THREE.SphereGeometry(0.1, 16, 16);
+            const material3D = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+            
+            for (let i = 0; i < 3; i++) {
+                const point = new THREE.Mesh(geometry3D, material3D);
+                point.position.set((i - 1) * 3, 2, 0);
+                scene.add(point);
+                psi3DPoints.push(point);
+            }
+            
+            // Create 5D Hilbert space representation (projected to 3D)
+            const geometry5D = new THREE.SphereGeometry(0.12, 16, 16);
+            const material5D = new THREE.MeshBasicMaterial({ color: 0xff00ff });
+            
+            for (let i = 0; i < 5; i++) {
+                const point = new THREE.Mesh(geometry5D, material5D);
+                const angle = (i / 5) * Math.PI * 2;
+                point.position.set(Math.cos(angle) * 4, -2, Math.sin(angle) * 2);
+                scene.add(point);
+                omega5DPoints.push(point);
+            }
+            
+            // Create transformation arrows
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const geometry = new THREE.CylinderGeometry(0.02, 0.02, 1, 8);
+                    const material = new THREE.MeshBasicMaterial({ color: 0xff0000, transparent: true, opacity: 0.3 });
+                    const arrow = new THREE.Mesh(geometry, material);
+                    scene.add(arrow);
+                    transformationArrows.push(arrow);
+                }
+            }
+            
+            // Add labels
+            addLabels();
+        }
+        
+        function addLabels() {
+            const loader = new THREE.FontLoader();
+            // Note: In a real implementation, you'd load a font file
+            // For this demo, we'll use geometric shapes as labels
+            
+            // Add coordinate system
+            const axes = new THREE.AxesHelper(5);
+            scene.add(axes);
+        }
+        
+        function setupControls() {
+            const sliders = ['alpha0-real', 'alpha1-real', 'alpha2-real'];
+            sliders.forEach(id => {
+                const slider = document.getElementById(id);
+                const display = document.getElementById(id + '-val');
+                
+                slider.addEventListener('input', (e) => {
+                    display.textContent = e.target.value;
+                    updateSystem();
+                });
+            });
+        }
+        
+        function updateSystem() {
+            // Get current amplitudes
+            const alpha0 = parseFloat(document.getElementById('alpha0-real').value);
+            const alpha1 = parseFloat(document.getElementById('alpha1-real').value);
+            const alpha2 = parseFloat(document.getElementById('alpha2-real').value);
+            
+            // Normalize
+            const norm = Math.sqrt(alpha0*alpha0 + alpha1*alpha1 + alpha2*alpha2);
+            const normalizedAlphas = [alpha0/norm, alpha1/norm, alpha2/norm];
+            
+            document.getElementById('norm-display').textContent = '1.00';
+            
+            // Update 3D state visualization
+            psi3DPoints.forEach((point, i) => {
+                const intensity = Math.abs(normalizedAlphas[i]);
+                point.scale.setScalar(1 + intensity * 2);
+                point.material.opacity = 0.3 + intensity * 0.7;
+            });
+            
+            // Calculate Ω' = ΠΨ
+            const omega = [];
+            for (let i = 0; i < 5; i++) {
+                let sum = 0;
+                for (let j = 0; j < 3; j++) {
+                    sum += Pi[i][j] * normalizedAlphas[j];
+                }
+                omega.push(sum);
+            }
+            
+            // Normalize omega to preserve norm
+            const omegaNorm = Math.sqrt(omega.reduce((sum, val) => sum + val*val, 0));
+            const normalizedOmega = omega.map(val => val / omegaNorm);
+            
+            // Calculate probabilities
+            const probabilities = normalizedOmega.map(val => val * val);
+            
+            // Update 5D state visualization
+            omega5DPoints.forEach((point, i) => {
+                const intensity = Math.abs(normalizedOmega[i]);
+                point.scale.setScalar(1 + intensity * 3);
+                point.material.opacity = 0.3 + intensity * 0.7;
+            });
+            
+            // Update transformation arrows
+            let arrowIndex = 0;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 5; j++) {
+                    const arrow = transformationArrows[arrowIndex];
+                    const startPos = psi3DPoints[i].position;
+                    const endPos = omega5DPoints[j].position;
+                    
+                    // Position arrow
+                    arrow.position.copy(startPos).lerp(endPos, 0.5);
+                    arrow.lookAt(endPos);
+                    
+                    // Scale based on matrix element
+                    const strength = Math.abs(Pi[j][i] * normalizedAlphas[i]);
+                    arrow.scale.set(strength, strength, startPos.distanceTo(endPos));
+                    arrow.material.opacity = 0.1 + strength * 0.4;
+                    
+                    arrowIndex++;
+                }
+            }
+            
+            // Update probability display
+            probabilities.forEach((prob, i) => {
+                document.getElementById(`prob${i}`).textContent = prob.toFixed(3);
+            });
+            
+            // Update utility display
+            let expectedUtility = 0;
+            utilities.forEach((util, i) => {
+                document.getElementById(`util${i}`).textContent = util.toFixed(2);
+                expectedUtility += probabilities[i] * util;
+            });
+            document.getElementById('expected-util').textContent = expectedUtility.toFixed(3);
+        }
+        
+        function randomizeMatrix() {
+            // Generate random norm-preserving matrix
+            for (let i = 0; i < 5; i++) {
+                for (let j = 0; j < 3; j++) {
+                    Pi[i][j] = (Math.random() - 0.5) * 2;
+                }
+            }
+            
+            // Randomize utilities (maintaining zero-sum)
+            utilities = utilities.map(() => (Math.random() - 0.5) * 4);
+            const utilSum = utilities.reduce((sum, val) => sum + val, 0);
+            utilities = utilities.map(val => val - utilSum / 5);
+            
+            updateSystem();
+        }
+        
+        function animateCollapse() {
+            // Animate the collapse to a specific outcome
+            const probabilities = [];
+            for (let i = 0; i < 5; i++) {
+                probabilities.push(parseFloat(document.getElementById(`prob${i}`).textContent));
+            }
+            
+            // Select outcome based on probabilities
+            let rand = Math.random();
+            let selectedIndex = 0;
+            let cumulative = 0;
+            
+            for (let i = 0; i < 5; i++) {
+                cumulative += probabilities[i];
+                if (rand < cumulative) {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+            
+            // Highlight selected outcome
+            omega5DPoints.forEach((point, i) => {
+                if (i === selectedIndex) {
+                    point.material.color.setHex(0xffff00);
+                    point.scale.setScalar(3);
+                } else {
+                    point.material.color.setHex(0xff00ff);
+                    point.scale.setScalar(1);
+                }
+            });
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                omega5DPoints.forEach(point => {
+                    point.material.color.setHex(0xff00ff);
+                });
+                updateSystem();
+            }, 2000);
+        }
+        
+        function animate() {
+            animationId = requestAnimationFrame(animate);
+            
+            // Rotate the scene for better viewing
+            const time = Date.now() * 0.001;
+            camera.position.x = Math.cos(time * 0.1) * 10;
+            camera.position.z = Math.sin(time * 0.1) * 10;
+            camera.lookAt(0, 0, 0);
+            
+            renderer.render(scene, camera);
+        }
+        
+        function handleResize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            camera.aspect = canvas.width / canvas.height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(canvas.width, canvas.height);
+        }
+        
+        window.addEventListener('resize', handleResize);
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>

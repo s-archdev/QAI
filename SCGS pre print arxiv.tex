@@ -1,0 +1,121 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb, amsthm, mathtools, tikz, enumitem}
+\usepackage{geometry}
+\usepackage{hyperref}
+\usepackage{authblk}
+\geometry{margin=1in}
+
+\title{Shadow Cooperative Game Structures (SCGS):\ Entanglement Operators, Scott Domains, and Runtime Agent Design}
+\author\[1]{S. Archdev}
+\author\[2]{OpenAI Assistive System (GPT-4o)}
+\affil\[1]{Independent Researcher}
+\affil\[2]{AI Theoretical Simulation Contributor}
+\date{July 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We formalize Shadow Cooperative Game Structures (SCGS), a novel class of adversarial multi-agent systems that converge toward mutually beneficial equilibria through hidden entanglement dynamics. Each agent retains its internal adversarial policy while global cooperative behavior emerges systemically. The framework integrates Scott domain theory to model strategy resolution as a continuous lattice, entanglement operators as monotonic morphisms, and MAS equilibria as least fixed points. A runtime agent architecture is proposed, and a quantum simulation encoding these constructs is described using Qiskit.
+\end{abstract}
+
+\section{Introduction}
+The traditional zero-sum paradigm in game theory assumes direct adversarial outcomes. In contrast, nature frequently demonstrates situations where agents operate under competition but systemically benefit from structured interaction. We present a class of systems---Shadow Cooperative Game Structures (SCGS)---where agents behave adversarially yet are systemically entangled toward cooperative outcomes. These outcomes are realized through domain-theoretic convergence, not explicit consensus.
+
+\section{Strategy Space as a Scott Domain}
+Each agent \$P\_i\$ is assigned a strategy space \$D\_i\$ structured as a Scott domain:
+\begin{itemize}\[noitemsep]
+\item \$D\_i\$ is a poset with a least element \$\bot\$.
+\item Directed joins exist: for directed \$S \subseteq D\_i\$, \$\bigsqcup S\$ exists.
+\item A function \$f: D\_i \to \mathbb{R}\$ is Scott-continuous if
+\$f(\bigsqcup S) = \sup f(S)\$ and \$x \sqsubseteq y \Rightarrow f(x) \leq f(y)\$.
+\end{itemize}
+
+We model strategy refinement as movement upward in the domain lattice:
+
+$$
+|0\rangle \sqsubseteq |+\rangle \sqsubseteq |1\rangle
+$$
+
+\section{Entanglement Operators \$\Phi\$}
+Entanglement operators \$\Phi: \mathcal{S} \to \mathbb{R}\$ act on global strategy profiles \$\mathcal{S} = D\_1 \times \dots \times D\_n\$.
+
+\subsection\*{Properties}
+\begin{enumerate}\[noitemsep]
+\item Monotonicity: \$\mathbf{s} \sqsubseteq \mathbf{s}' \Rightarrow \Phi(\mathbf{s}) \leq \Phi(\mathbf{s}')\$
+\item Directed lub preservation: \$\Phi(\bigsqcup D) = \sup \Phi(D)\$
+\item Order-respecting: agent local gradient preserved
+\end{enumerate}
+
+\subsection\*{Classes of Operators}
+\begin{itemize}\[noitemsep]
+\item Entropy-Aligned:
+\$\Phi(\mathbf{s}) = \lambda \sum\_{i \ne j} \text{Cov}(H(s\_i), H(s\_j))\$
+\item Projection-Based:
+\$\Phi(\mathbf{s}) = -|\mathbf{s} - \pi\_C(\mathbf{s})|^2\$
+\item Fixed Point Attractor:
+\$\Phi(\mathbf{s}) = \mu (1 - |\mathbf{s} - \mathbf{s}^\*|^2)\$
+\item Gradient-Preserving:
+\$\nabla\_{s\_i} f\_i(s\_i, \mathbf{s}*{-i}) = \nabla*{s\_i} (f\_i + \Phi)\$
+\end{itemize}
+
+\section{Category of SCGS}
+Define a category \$\mathcal{C}*{\text{SCGS}}\$:
+\begin{itemize}\[noitemsep]
+\item Objects: \$D\_i\$ (Scott domains of strategies)
+\item Morphisms: \$\Phi*{ij}: D\_i \times D\_j \to \mathbb{R}\$
+\item Composition: \$\Phi\_{ik} = \Phi\_{ij} \circ \Phi\_{jk}\$
+\end{itemize}
+
+This forms a Cartesian closed category, enabling structured modeling of multi-agent entanglement.
+
+\section{Equilibrium as Least Fixed Point}
+We define the global strategy evolution function:
+
+$$
+F: \mathcal{S} \to \mathcal{S}, \quad \text{MAS} = \text{lfp}(F) = \bigsqcup_k F^k(\bot)
+$$
+
+This provides a natural convergence guarantee from undefined state \$\bot\$ toward cooperative equilibrium without disrupting adversarial reasoning.
+
+\section{Quantum Encoding of Domains}
+We encode domain elements as quantum states:
+\begin{itemize}\[noitemsep]
+\item \$|0\rangle\$: undefined (bottom)
+\item \$|+\rangle\$: partial strategy
+\item \$|1\rangle\$: resolved strategy
+\end{itemize}
+
+\subsection\*{Quantum Circuit Components}
+\begin{itemize}\[noitemsep]
+\item Entanglement via \$\text{CNOT}, \text{iSWAP}, \text{CU}\$
+\item MAS Driver via \$R\_y(\theta)\$
+\item Strategy collapse via measurement
+\end{itemize}
+
+\section{Runtime Agent Architecture}
+Each agent instance \$\texttt{SCGSAgent}\$ contains:
+\begin{itemize}\[noitemsep]
+\item \textbf{QStrategyRegister}: Qiskit qubit encoding domain level
+\item \textbf{AdversarialPolicyCore}: zero-sum payoff computation
+\item \textbf{EntanglementController}: manages qubit entanglement
+\item \textbf{MASDriver}: applies \$\Phi\$ operators
+\item \textbf{DomainTracker}: enforces monotonic progression
+\item \textbf{MeasurementManager}: reads and collapses state
+\end{itemize}
+
+\subsection\*{State Log Format}
+\begin{verbatim}
+{
+strategy\_level: "|+>",
+payoff\_trace: \[0.2, 0.5, 0.7],
+entanglement\_trace: \["P0", "P2"],
+last\_collapse: "1"
+}
+\end{verbatim}
+
+\section{Conclusion}
+SCGS provides a rigorous mathematical and quantum-operational framework for designing adversarial agents who evolve into cooperative attractors systemically. Using domain theory, category theory, and quantum encoding, we model equilibrium as a byproduct of structural convergence rather than ideological alignment.
+
+\end{document}

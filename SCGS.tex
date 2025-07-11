@@ -1,0 +1,155 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amsthm, tikz, enumitem, geometry}
+\usepackage{hyperref}
+\geometry{margin=1in}
+
+\title{Shadow Cooperative Game Structures (SCGS):\\
+Entanglement Operators, Scott Domains, and Runtime Agent Design}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{Overview}
+
+This document formalizes the structure and dynamics of \textbf{Shadow Cooperative Game Structures (SCGS)} — systems in which adversarial agents, modeled within zero-sum assumptions, converge toward \textbf{Mutually Assured Success (MAS)} through systemic entanglement dynamics. The agents preserve their local reasoning logic while being structurally shaped toward cooperative equilibria through entanglement operators defined over Scott domains.
+
+\section{Objective}
+
+Design a multi-agent system where:
+\begin{itemize}[noitemsep]
+    \item Agents assume adversarial logic and maintain local autonomy.
+    \item Cooperation emerges systemically, not by explicit agreement.
+    \item The system converges to MAS equilibrium via hidden entanglement dynamics.
+\end{itemize}
+
+\section{Strategy Space as a Scott Domain}
+
+Let each agent $P_i$ have a strategy space $D_i$ structured as a \textbf{Scott domain}:
+\begin{itemize}[noitemsep]
+    \item A partially ordered set with least element $\bot$.
+    \item Directed joins exist: for any directed set $S \subseteq D_i$, $\bigsqcup S$ exists.
+    \item Functions $f: D_i \to \mathbb{R}$ are Scott-continuous if:
+    \[
+    \forall S \subseteq D_i \text{ directed: } f\left(\bigsqcup S\right) = \sup f(S)
+    \quad \text{and } s \sqsubseteq s' \Rightarrow f(s) \leq f(s').
+    \]
+\end{itemize}
+
+\textbf{Example lattice for one agent}:
+\[
+|0\rangle \sqsubseteq |+\rangle \sqsubseteq |1\rangle
+\]
+
+\section{Entanglement Operators \texorpdfstring{$\Phi$}{Φ}: Definition and Classes}
+
+An \textbf{entanglement operator} is a function $\Phi: \mathcal{S} \to \mathbb{R}$, where $\mathcal{S} = D_1 \times \cdots \times D_n$ is the global strategy space.
+
+\subsection*{Formal Requirements}
+$\Phi$ is a valid entanglement operator iff:
+\begin{enumerate}[label=(\alph*),noitemsep]
+    \item $\Phi$ is Scott-continuous: monotonic and lub-preserving.
+    \item $\Phi$ induces convergence toward cooperative configurations.
+    \item $\Phi$ does not alter local agent gradient preferences (order-preserving).
+\end{enumerate}
+
+\subsection*{Classes of $\Phi$ Operators}
+
+\begin{itemize}
+    \item \textbf{Entropy-Aligned Operator}:
+    \[
+    \Phi(\mathbf{s}) = \lambda \cdot \sum_{i \neq j} \text{Cov}(H(s_i), H(s_j))
+    \]
+
+    \item \textbf{Projection-Based Operator}:
+    \[
+    \Phi(\mathbf{s}) = -\| \mathbf{s} - \pi_{\mathcal{C}}(\mathbf{s}) \|^2
+    \]
+
+    \item \textbf{Fixed Point Attractor Operator}:
+    \[
+    \Phi(\mathbf{s}) = \mu \cdot \left(1 - \| \mathbf{s} - \mathbf{s}^* \|^2 \right)
+    \]
+
+    \item \textbf{Order-Preserving Operator} (Gradient alignment):
+    \[
+    \nabla_{s_i} f_i(s_i, \mathbf{s}_{-i}) = \nabla_{s_i} \left(f_i(s_i, \mathbf{s}_{-i}) + \Phi(s_i, \mathbf{s}_{-i})\right)
+    \]
+\end{itemize}
+
+\section{SCGS as a Category \texorpdfstring{$\mathcal{C}_{SCGS}$}{C\_SCGS}}
+
+Define a category where:
+\begin{itemize}[noitemsep]
+    \item Objects: strategy domains $D_i$ for each agent.
+    \item Morphisms: entanglement operators $\Phi_{ij}: D_i \times D_j \to \mathbb{R}$.
+    \item Composition: $\Phi_{ik} = \Phi_{ij} \circ \Phi_{jk}$.
+\end{itemize}
+
+$\mathcal{C}_{SCGS}$ is closed under Cartesian product, forming a domain-theoretic structure for MAS emergence.
+
+\section{MAS as Least Fixed Point}
+
+Let the global transformer be:
+\[
+F: \mathcal{S} \to \mathcal{S}
+\quad \text{with } \mathcal{S} = D_1 \times \cdots \times D_n
+\]
+
+The MAS attractor is defined as:
+\[
+\text{lfp}(F) = \bigsqcup_{k \in \mathbb{N}} F^k(\bot)
+\]
+
+Where:
+\begin{itemize}[noitemsep]
+    \item $\bot$ is the least defined strategy profile.
+    \item $F$ is monotonic, representing agent strategy updates.
+\end{itemize}
+
+\section{Quantum Simulation: Domain Encoding}
+
+Qubit states represent domain levels:
+\begin{itemize}[noitemsep]
+    \item $|0\rangle$: undefined ($\bot$)
+    \item $|+\rangle = \frac{1}{\sqrt{2}}(|0\rangle + |1\rangle)$: partial
+    \item $|1\rangle$: resolved strategy
+\end{itemize}
+
+\subsection*{Entanglement Structure}
+\begin{itemize}[noitemsep]
+    \item Controlled-NOT, iSWAP, or controlled-$U$ gates link agents.
+    \item $R_y(\theta)$ gates apply cooperative bias (MAS driver).
+\end{itemize}
+
+\subsection*{Measurement}
+\begin{itemize}[noitemsep]
+    \item Collapse determines progression in strategy domain.
+    \item Trace used to compute reward: $f_i + \Phi$.
+\end{itemize}
+
+\section{Runtime Agent Architecture: \texttt{SCGSAgent}}
+
+\subsection*{State Representation}
+\begin{itemize}[noitemsep]
+    \item \texttt{strategy\_level} $\in \{|0\rangle, |+\rangle, |1\rangle\}$
+    \item \texttt{quantum\_register}: pointer to Qiskit qubit
+    \item \texttt{payoff\_trace}: list of $(f_i + \Phi)$ over rounds
+    \item \texttt{entanglement\_trace}: list of interaction partners
+\end{itemize}
+
+\subsection*{Agent Modules}
+\begin{itemize}[noitemsep]
+    \item \textbf{AdversarialPolicyCore}: classical logic over $f_i$
+    \item \textbf{EntanglementController}: applies CNOT, iSWAP, etc.
+    \item \textbf{MASDriver}: drives convergence via $R_y(\theta)$
+    \item \textbf{DomainTracker}: enforces monotonic progression
+    \item \textbf{MeasurementManager}: observes collapse and updates trace
+\end{itemize}
+
+\section{Conclusion}
+
+This framework models how agents in adversarial environments can evolve toward cooperation without negotiation, identity loss, or external constraints. By encoding strategies in quantum systems over domain-theoretic lattices and shaping outcomes through entanglement operators, we build structurally cooperative systems that preserve individual reasoning while converging collectively.
+
+\end{document}
